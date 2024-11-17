@@ -30,10 +30,14 @@ public class UserDaoHibernateImpl implements UserDao {
             query.executeUpdate();
             tx.commit();
         }
-        catch (Exception e) {
-            if (tx != null) tx.rollback();
-            e.printStackTrace();
+        if (tx != null) {
+            try {
+                tx.rollback();
+            } catch (Exception rollbackEx) {
+                rollbackEx.printStackTrace();
+            }
         }
+
     }
 
     @Override
@@ -47,7 +51,13 @@ public class UserDaoHibernateImpl implements UserDao {
             tx.commit();
         }
         catch (Exception e) {
-            if (tx != null) tx.rollback();
+            if (tx != null) {
+                try {
+                    tx.rollback();
+                } catch (Exception rollbackEx) {
+                    rollbackEx.printStackTrace();
+                }
+            }
             e.printStackTrace();
         }
     }
@@ -61,10 +71,14 @@ public class UserDaoHibernateImpl implements UserDao {
             session.save(user);
             tx.commit();
         }
-        catch (Exception e) {
-            if (tx != null) tx.rollback();
-            e.printStackTrace();
+        if (tx != null) {
+            try {
+                tx.rollback();
+            } catch (Exception rollbackEx) {
+                rollbackEx.printStackTrace();
+            }
         }
+
     }
 
     @Override
@@ -72,14 +86,19 @@ public class UserDaoHibernateImpl implements UserDao {
         Transaction tx = null;
         try (Session session = sessionFactory.openSession()) {
             tx = session.beginTransaction();
-            User user = (User) session.get(User.class, id);
-            session.delete(user);
+            session.createQuery("delete from User where id = :id")
+                    .setParameter("id", id)
+                    .executeUpdate();
             tx.commit();
         }
-        catch (Exception e) {
-            if (tx != null) tx.rollback();
-            e.printStackTrace();
+        if (tx != null) {
+            try {
+                tx.rollback();
+            } catch (Exception rollbackEx) {
+                rollbackEx.printStackTrace();
+            }
         }
+
     }
 
     @Override
@@ -91,10 +110,14 @@ public class UserDaoHibernateImpl implements UserDao {
             users = session.createQuery("from User", User.class).list();
             tx.commit();
         }
-        catch (Exception e) {
-            if (tx != null) tx.rollback();
-            e.printStackTrace();
+        if (tx != null) {
+            try {
+                tx.rollback();
+            } catch (Exception rollbackEx) {
+                rollbackEx.printStackTrace();
+            }
         }
+
         return users;
     }
 
@@ -105,6 +128,16 @@ public class UserDaoHibernateImpl implements UserDao {
             tx = session.beginTransaction();
             session.createQuery("delete from User").executeUpdate();
             tx.commit();
+        }
+        catch (Exception e) {
+            if (tx != null) {
+                try {
+                    tx.rollback();
+                } catch (Exception rollbackEx) {
+                    rollbackEx.printStackTrace();
+                }
+            }
+            e.printStackTrace();
         }
     }
 }
